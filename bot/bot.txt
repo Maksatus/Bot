@@ -1,0 +1,36 @@
+from vk_api.longpoll import VkLongPoll, VkEventType
+import vk_api
+from datetime import datetime
+from pyowm.exceptions.api_response_error import NotFoundError
+
+import pyowm
+
+token = "52bd2ffcbf74be468363b8a9804e2b12d1640b71b1ded55c09fd89d2e771798f512c28238d81fbee8b05d"
+vk_session = vk_api.VkApi(token=token)
+longpoll = VkLongPoll(vk_session)
+
+owm = pyowm.OWM('f9399221da460419ca85763dd181ee48', language="ru")
+
+while True:
+    for event in longpoll.listen():
+        if event.type == VkEventType.MESSAGE_NEW:
+            print('Сообщение пришло в: ' + str(datetime.strftime(datetime.now(), "%H:%M:%S")))
+            print('Текст сообщения: ' + str(event.text))
+            print(event.user_id)
+            response = event.text.lower()
+
+            if event.from_user and not event.from_me:
+                try:
+                    observation = owm.weather_at_place(response)
+                    reg = owm.city_id_registry()
+                    w = observation.get_weather()
+                    temp = w.get_temperature('celsius')["temp"]
+                    output = "В заданном городе сейчас " + w.get_detailed_status() + " Температура в районе " + str(
+                        temp) + "\n"
+                    vk_session.method('messages.send',
+                                      {'user_id': event.user_id, 'message': output, 'random_id': 0})
+
+                except (NotFoundError, NameError):
+                    output = None
+                    vk_session.method('messages.send',
+                                      {'user_id': event.user_id, 'message': "Введите город!", 'random_id': 0})
