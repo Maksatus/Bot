@@ -5,7 +5,7 @@ from pyowm.exceptions.api_response_error import NotFoundError
 
 import pyowm
 
-token = "52bd2ffcbf74be468363b8a9804e2b12d1640b71b1ded55c09fd89d2e771798f512c28238d81fbee8b05d"
+token = "3333ffcbf74be468363b8a9804e2b12d1640b71b1ded55c09fd89d2e771798f512c28238d81fbee8b05d"
 vk_session = vk_api.VkApi(token=token)
 longpoll = VkLongPoll(vk_session)
 
